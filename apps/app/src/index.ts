@@ -1,6 +1,10 @@
 import { Elysia } from "elysia";
 import { MobilityModel } from "./model";
 import { ValidateService } from "./service";
+import { getCachedResult, setCachedResult, getRedisClient } from "./cache";
+
+// Initialize Redis connection on startup
+getRedisClient();
 
 const app = new Elysia({ prefix: "/api" })
 
@@ -30,8 +34,22 @@ const app = new Elysia({ prefix: "/api" })
           return { error: "All values must be between 1 and 5." };
         }
         console.log("Received input:", body);
+
+        // 1. Check Redis cache
+        const cached = await getCachedResult(body);
+        if (cached) {
+          set.status = 200;
+          return cached;
+        }
+
+        // 2. Compute result
+        const result = await ValidateService.validateData({ body });
+
+        // 3. Store in Redis cache
+        await setCachedResult(body, result);
+
         set.status = 200;
-        return await ValidateService.validateData({ body });
+        return result;
       } catch (e) {
         set.status = 500;
         return { error: "Something went wrong. Please try later again." };

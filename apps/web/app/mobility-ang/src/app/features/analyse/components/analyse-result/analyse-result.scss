@@ -26,9 +26,16 @@
 }
 
 .result-icon {
-  font-size: 4.5rem;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--huk-accent);
   animation: emojiPop 0.6s ease 0.2s both;
+
+  svg {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
 }
 
 @keyframes emojiPop {
@@ -57,11 +64,11 @@
 .result-title {
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--huk-accent);
+  color: var(--huk-primary);
   margin-bottom: 16px;
   letter-spacing: -0.03em;
   padding: 8px 32px;
-  background: var(--huk-primary);
+  background: var(--huk-accent);
   display: inline-block;
   border-radius: var(--radius-sm);
 }

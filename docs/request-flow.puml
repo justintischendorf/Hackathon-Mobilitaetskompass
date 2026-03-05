@@ -1,0 +1,41 @@
+@startuml
+skinparam backgroundColor white
+skinparam roundcorner 8
+skinparam sequenceArrowThickness 2
+skinparam participantBackgroundColor #FEED00
+skinparam participantBorderColor #011631
+skinparam participantFontColor #011631
+skinparam databaseBackgroundColor #E2E8F0
+skinparam databaseBorderColor #011631
+
+title Mobilitätskompass – Sequenzdiagramm
+
+actor Benutzer as U
+participant "Angular" as C
+participant "Elysia API" as A
+database "Redis" as R
+
+U -> C : Bewertungen eingeben
+activate C
+C -> A : POST /api/analyse
+activate A
+
+A -> R : Cache Lookup
+activate R
+
+alt Cache HIT
+  R --> A : Ergebnis
+  deactivate R
+else Cache MISS
+  R --> A : null
+  deactivate R
+  A -> A : Scoring berechnen
+  A -> R : Ergebnis speichern (24h)
+end
+
+A --> C : { empfehlung, erklaerung }
+deactivate A
+C --> U : Empfehlung anzeigen
+deactivate C
+
+@enduml

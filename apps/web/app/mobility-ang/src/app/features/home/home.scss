@@ -94,17 +94,7 @@
   justify-content: center;
 }
 
-.compass-icon {
-  font-size: 10rem;
-  animation: compassFloat 6s ease-in-out infinite;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
-}
 
-@keyframes compassFloat {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-12px) rotate(5deg); }
-  75% { transform: translateY(8px) rotate(-3deg); }
-}
 
 // How it works
 .how-it-works {
@@ -201,9 +191,14 @@
 }
 
 .category-icon {
-  font-size: 3rem;
   margin-bottom: 16px;
   transition: transform 0.3s ease;
+  color: var(--huk-accent);
+
+  svg {
+    width: 3rem;
+    height: 3rem;
+  }
 }
 
 .category-name {

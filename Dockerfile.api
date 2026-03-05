@@ -1,0 +1,10 @@
+FROM oven/bun:1 AS base
+WORKDIR /app
+
+COPY apps/app/ ./apps/app/
+
+WORKDIR /app/apps/app
+RUN bun install
+
+EXPOSE 3000
+CMD ["bun", "run", "src/index.ts"]
