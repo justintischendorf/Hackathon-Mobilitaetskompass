@@ -2,10 +2,10 @@ import { Elysia } from "elysia";
 import { MobilityModel } from "./model";
 import { MobilityService } from "./service";
 
-const app = new Elysia()
+const app = new Elysia({ prefix: "/api" })
 
   .post(
-    "/auth/register",
+    "/analyse",
     async ({ set, body }) => {
       try {
         set.status = 200;
