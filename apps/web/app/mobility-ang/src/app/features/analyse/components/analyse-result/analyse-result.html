@@ -1,9 +1,20 @@
 <div class="result-card">
-  <div class="confetti">
-    <span>🎉</span><span>✨</span><span>🎊</span><span>⭐</span><span>🎈</span>
+  <div class="result-badge-row">
+    <span class="result-icon">{{ icon }}</span>
   </div>
-  <div class="result-emoji">{{ empfehlungEmoji }}</div>
-  <p class="result-label">Deine Empfehlung</p>
-  <div class="result-badge">{{ result().empfehlung }}</div>
+
+  <p class="result-label">Ihre Empfehlung</p>
+
+  <h2 class="result-title">{{ result().empfehlung }}</h2>
+
   <p class="result-explanation">{{ result().erklaerung }}</p>
+
+  <div class="result-actions">
+    <a [routerLink]="categoryRoute" class="btn-primary">
+      Mehr über {{ result().empfehlung }} erfahren →
+    </a>
+    <button class="btn-outline" (click)="onReset()">
+      Neue Analyse starten
+    </button>
+  </div>
 </div>

@@ -1,40 +1,33 @@
 <section class="analyse-page">
-
-  <button 
-    class="dark-toggle" 
-    (click)="toggleDarkMode()" 
-    [title]="darkMode() ? 'Hellmodus' : 'Dunkelmodus'"
-    [attr.aria-label]="darkMode() ? 'Zu Hellmodus wechseln' : 'Zu Dunkelmodus wechseln'"
-  >
-    {{ darkMode() ? '☀️' : '🌙' }}
-  </button>
-
-  <div class="page-header">
-    <div class="huk-logo">
-      <img src="/assets/huk-coburg-logo.svg" alt="HUK-COBURG Logo" class="huk-logo-img" />
-      <span class="huk-badge">Hackathon 2026</span>
+  <div class="container">
+    <div class="page-header">
+      <h1 class="section-title">Mobilitäts-Analyse</h1>
+      <p class="section-subtitle">
+        Bewerten Sie sechs Kriterien und erhalten Sie Ihre persönliche Mobilitätsempfehlung.
+      </p>
     </div>
-    <span class="page-icon" role="img" aria-label="Kompass">🧭</span>
-    <h1>Mobilitätskompass</h1>
-    <p class="subtitle">Finde heraus, welches Verkehrsmittel am besten zu dir passt.</p>
+
+    @if (!result()) {
+      <app-analyse-form (submitted)="onFormSubmitted($event)" />
+    }
+
+    @if (loading()) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Analyse wird durchgeführt…</p>
+      </div>
+    }
+
+    @if (error(); as err) {
+      <div class="error-state" role="alert">
+        <span class="error-icon" aria-hidden="true">⚠️</span>
+        <p>{{ err }}</p>
+        <button class="btn-primary" (click)="onReset()">Erneut versuchen</button>
+      </div>
+    }
+
+    @if (result(); as res) {
+      <app-analyse-result [result]="res" (reset)="onReset()" />
+    }
   </div>
-
-  @if (!result()) {
-    <app-analyse-form (submitted)="onFormSubmitted($event)" />
-  }
-
-  @if (loading()) {
-    <div class="loading" role="status" aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
-      <span>Analyse läuft…</span>
-    </div>
-  }
-
-  @if (error(); as err) {
-    <div class="error" role="alert">⚠️ {{ err }}</div>
-  }
-
-  @if (result(); as res) {
-    <app-analyse-result [result]="res" />
-  }
 </section>

@@ -1,0 +1,45 @@
+<nav class="navbar" role="navigation" aria-label="Hauptnavigation">
+  <div class="navbar-container">
+    <a class="navbar-brand" routerLink="/home" (click)="closeMobileMenu()">
+      <img src="assets/logo.png" alt="HUK-COBURG Logo" class="navbar-logo" />
+      <span class="navbar-title">Mobilitätskompass</span>
+    </a>
+
+    <button
+      class="mobile-toggle"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-label="Navigation öffnen/schließen"
+    >
+      <span class="hamburger" [class.open]="mobileMenuOpen()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <ul class="nav-links" [class.open]="mobileMenuOpen()">
+      @for (link of navLinks; track link.path) {
+        <li>
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            (click)="closeMobileMenu()"
+          >
+            {{ link.label }}
+          </a>
+        </li>
+      }
+      <li class="nav-cta">
+        <a
+          routerLink="/analyse"
+          routerLinkActive="active"
+          class="cta-link"
+          (click)="closeMobileMenu()"
+        >
+          Jetzt analysieren
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

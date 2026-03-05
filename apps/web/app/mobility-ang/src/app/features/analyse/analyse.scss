@@ -1,228 +1,57 @@
 .analyse-page {
-  min-height: 100vh;
-  padding: 3rem 1rem 5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.dark-toggle {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 2px solid var(--border);
-  background: var(--bg-card);
-  font-size: 1.3rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 12px var(--shadow);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 100;
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 20px var(--shadow);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 53, 128, 0.2);
-  }
-
-  &:active {
-    transform: scale(1.05);
-  }
+  padding: 48px 0 80px;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 2.5rem;
-
-  .huk-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    animation: fadeInDown 0.6s ease-out;
-
-    .huk-logo-img {
-      height: 40px;
-      width: auto;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,53,128,0.25);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,53,128,0.35);
-      }
-    }
-
-    .huk-badge {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--huk-blue);
-      background: linear-gradient(135deg, rgba(0,53,128,0.08), rgba(0,53,128,0.12));
-      padding: 0.35rem 0.85rem;
-      border-radius: 20px;
-      border: 1.5px solid rgba(0,53,128,0.2);
-      transition: all 0.3s ease;
-      animation: fadeIn 0.8s ease-out 0.2s both;
-
-      &:hover {
-        background: linear-gradient(135deg, rgba(0,53,128,0.12), rgba(0,53,128,0.16));
-        border-color: rgba(0,53,128,0.3);
-        transform: translateY(-1px);
-      }
-    }
-  }
-
-  .page-icon {
-    display: block;
-    font-size: 4rem;
-    margin-bottom: 0.75rem;
-    animation: compassFloat 6s ease-in-out infinite;
-    filter: drop-shadow(0 8px 16px rgba(0,53,128,0.2));
-  }
-
-  h1 {
-    font-size: 2.6rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem;
-    background: linear-gradient(135deg, var(--huk-blue) 0%, var(--huk-blue-mid) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: -0.02em;
-    animation: fadeInUp 0.6s ease-out 0.1s both;
-  }
-
-  .subtitle {
-    color: var(--text-secondary);
-    margin: 0;
-    font-size: 1.05rem;
-    animation: fadeIn 0.8s ease-out 0.3s both;
-  }
+  margin-bottom: 48px;
 }
 
-.loading {
+.loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-  margin-top: 2.5rem;
-  color: var(--huk-blue-mid);
-  font-weight: 600;
-  font-size: 1rem;
-  animation: fadeIn 0.4s ease-out;
+  gap: 20px;
+  padding: 64px 24px;
 
-  .spinner {
-    width: 48px;
-    height: 48px;
-    border: 4px solid var(--border);
-    border-top-color: var(--huk-blue-mid);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+  p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
   }
 }
 
-.error {
-  text-align: center;
-  margin-top: 1.5rem;
-  padding: 1rem 1.5rem;
-  background: #fff1f2;
-  color: #e11d48;
-  border-radius: 14px;
-  border: 1.5px solid #fecdd3;
-  max-width: 480px;
-  width: 100%;
-  font-weight: 500;
-}
-
-@keyframes compassFloat {
-  0%, 100% { 
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-8px) rotate(2deg);
-  }
-  50% { 
-    transform: translateY(-12px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-8px) rotate(-2deg);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--huk-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-@media (max-width: 640px) {
-  .page-header {
-    h1 {
-      font-size: 2rem;
-    }
+.error-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid #fecaca;
+  max-width: 480px;
+  margin: 0 auto;
 
-    .page-icon {
-      font-size: 3rem;
-    }
+  .error-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 12px;
+  }
 
-    .huk-logo {
-      gap: 0.5rem;
-
-      .huk-logo-img {
-        height: 32px;
-      }
-
-      .huk-badge {
-        font-size: 0.65rem;
-        padding: 0.3rem 0.7rem;
-      }
-    }
-
-    .subtitle {
-      font-size: 0.95rem;
-    }
+  p {
+    color: #b91c1c;
+    font-size: 1rem;
+    margin-bottom: 24px;
   }
 }

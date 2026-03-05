@@ -41,7 +41,6 @@ const app = new Elysia({ prefix: "/api" })
       body: MobilityModel.InputUserBody,
     },
   )
-
   .listen(3000);
 
 console.log(

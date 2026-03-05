@@ -2,14 +2,13 @@ import { Component, output, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MobilityInput } from '../../../../models/mobility.model';
 
-interface Step {
+interface CriterionStep {
   key: keyof MobilityInput;
   label: string;
   description: string;
-  progressEmoji: string;
-  valueEmojis: [string, string, string, string, string];
-  rangeLabels: [string, string];
-  color: string;
+  icon: string;
+  labels: [string, string, string, string, string];
+  rangeHints: [string, string];
 }
 
 @Component({
@@ -33,102 +32,107 @@ export class AnalyseFormComponent {
     flexibility: [3, [Validators.required, Validators.min(1), Validators.max(5)]],
   });
 
-  readonly steps: Step[] = [
+  readonly steps: CriterionStep[] = [
     {
       key: 'budget',
       label: 'Budget',
-      description: 'Wie wichtig ist dir ein niedriger Preis?',
-      progressEmoji: '💰',
-      valueEmojis: ['🤷', '💳', '💰', '💸', '🤑'],
-      rangeLabels: ['Egal', 'Entscheidend'],
-      color: '#f59e0b',
+      description: 'Wie wichtig ist Ihnen ein niedriger Preis?',
+      icon: '💰',
+      labels: ['Unwichtig', 'Wenig', 'Mittel', 'Wichtig', 'Entscheidend'],
+      rangeHints: ['Preis egal', 'Sehr preisbewusst'],
     },
     {
       key: 'comfort',
       label: 'Komfort',
-      description: 'Wie wichtig ist dir Bequemlichkeit?',
-      progressEmoji: '🛋️',
-      valueEmojis: ['🪨', '🪑', '😊', '🌟', '👑'],
-      rangeLabels: ['Egal', 'Sehr wichtig'],
-      color: '#ec4899',
+      description: 'Wie wichtig ist Ihnen Bequemlichkeit unterwegs?',
+      icon: '🛋️',
+      labels: ['Unwichtig', 'Wenig', 'Mittel', 'Wichtig', 'Sehr wichtig'],
+      rangeHints: ['Spartanisch', 'Maximaler Komfort'],
     },
     {
       key: 'eco',
       label: 'Nachhaltigkeit',
-      description: 'Wie wichtig ist dir Umweltfreundlichkeit?',
-      progressEmoji: '🌿',
-      valueEmojis: ['🏭', '🌫️', '🌱', '🌿', '🌳'],
-      rangeLabels: ['Egal', 'Sehr wichtig'],
-      color: '#10b981',
+      description: 'Wie wichtig ist Ihnen Umweltfreundlichkeit?',
+      icon: '🌿',
+      labels: ['Unwichtig', 'Wenig', 'Mittel', 'Wichtig', 'Sehr wichtig'],
+      rangeHints: ['Nebensächlich', 'Höchste Priorität'],
     },
     {
       key: 'distance',
       label: 'Distanz',
-      description: 'Wie weit ist dein typischer Weg?',
-      progressEmoji: '📍',
-      valueEmojis: ['🏠', '🚶', '🚲', '🚗', '✈️'],
-      rangeLabels: ['Sehr kurz', 'Sehr weit'],
-      color: '#0080C8',
+      description: 'Wie weit ist Ihr typischer Arbeitsweg?',
+      icon: '📍',
+      labels: ['Sehr kurz', 'Kurz', 'Mittel', 'Weit', 'Sehr weit'],
+      rangeHints: ['< 2 km', '> 30 km'],
     },
     {
       key: 'availability',
-      label: 'Anbindung',
-      description: 'Wie gut ist deine ÖPNV-Anbindung?',
-      progressEmoji: '🚌',
-      valueEmojis: ['🏜️', '🛤️', '🚏', '🚌', '🚆'],
-      rangeLabels: ['Sehr schlecht', 'Sehr gut'],
-      color: '#8b5cf6',
+      label: 'ÖPNV-Anbindung',
+      description: 'Wie gut ist Ihre Anbindung an den öffentlichen Nahverkehr?',
+      icon: '🚏',
+      labels: ['Sehr schlecht', 'Schlecht', 'Mittel', 'Gut', 'Sehr gut'],
+      rangeHints: ['Keine Anbindung', 'Hervorragend'],
     },
     {
       key: 'flexibility',
       label: 'Flexibilität',
-      description: 'Wie wichtig ist dir zeitliche Flexibilität?',
-      progressEmoji: '⏰',
-      valueEmojis: ['📅', '🕐', '⚡', '🗓️', '🦋'],
-      rangeLabels: ['Egal', 'Sehr wichtig'],
-      color: '#f97316',
+      description: 'Wie wichtig ist Ihnen zeitliche Unabhängigkeit?',
+      icon: '⏰',
+      labels: ['Unwichtig', 'Wenig', 'Mittel', 'Wichtig', 'Sehr wichtig'],
+      rangeHints: ['Feste Zeiten ok', 'Volle Flexibilität'],
     },
   ];
 
-  readonly ratingValues = [1, 2, 3, 4, 5];
+  readonly values = [1, 2, 3, 4, 5];
   readonly currentStep = signal(0);
 
-  get currentSlider(): Step {
+  get step(): CriterionStep {
     return this.steps[this.currentStep()]!;
   }
 
-  get isLastStep(): boolean {
+  get isFirst(): boolean {
+    return this.currentStep() === 0;
+  }
+
+  get isLast(): boolean {
     return this.currentStep() === this.steps.length - 1;
+  }
+
+  get progress(): number {
+    return ((this.currentStep() + 1) / this.steps.length) * 100;
   }
 
   getControl(key: keyof MobilityInput): FormControl<number> {
     return this.form.controls[key];
   }
 
+  selectValue(value: number): void {
+    this.getControl(this.step.key).setValue(value);
+  }
+
   next(): void {
-    if (!this.isLastStep) {
-      this.currentStep.update((s) => s + 1);
+    if (!this.isLast) {
+      this.currentStep.update(s => s + 1);
     }
   }
 
   back(): void {
-    if (this.currentStep() > 0) {
-      this.currentStep.update((s) => s - 1);
+    if (!this.isFirst) {
+      this.currentStep.update(s => s - 1);
     }
   }
 
   onSubmit(): void {
     if (this.form.valid) {
       const raw = this.form.getRawValue();
-      const parsed: MobilityInput = {
+      this.submitted.emit({
         budget: Number(raw.budget),
         comfort: Number(raw.comfort),
         eco: Number(raw.eco),
         distance: Number(raw.distance),
         availability: Number(raw.availability),
         flexibility: Number(raw.flexibility),
-      };
-      this.submitted.emit(parsed);
+      });
     }
   }
 }

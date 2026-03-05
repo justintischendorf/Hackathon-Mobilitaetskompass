@@ -1,22 +1,34 @@
-import { Component, input } from '@angular/core';
-import { MobilityResult } from '../../../../models/mobility.model';
+import { Component, input, output } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { MobilityResult, CATEGORIES } from '../../../../models/mobility.model';
 
 @Component({
   selector: 'app-analyse-result',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './analyse-result.html',
   styleUrl: './analyse-result.scss',
 })
 export class AnalyseResultComponent {
   readonly result = input.required<MobilityResult>();
+  readonly reset = output<void>();
 
-  get empfehlungEmoji(): string {
+  get icon(): string {
     const map: Record<string, string> = {
-      'Auto':     '🚗',
-      'Jobrad':   '🚲',
-      'ÖPNV':     '🚌',
+      'Auto': '🚗',
+      'Jobrad': '🚲',
+      'ÖPNV': '🚌',
       'E-Scooter': '🛴',
     };
     return map[this.result().empfehlung] ?? '🚀';
+  }
+
+  get categoryRoute(): string {
+    const cat = CATEGORIES.find(c => c.name === this.result().empfehlung);
+    return cat?.route ?? '/home';
+  }
+
+  onReset(): void {
+    this.reset.emit();
   }
 }
