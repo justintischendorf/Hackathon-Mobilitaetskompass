@@ -1,45 +1,109 @@
-<form class="analyse-form" [formGroup]="form" (ngSubmit)="onSubmit()">
-  <div class="step-progress">
-    @for (step of steps; track step.key; let i = $index) {
+<form
+  class="analyse-form"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  [style.--step-color]="currentSlider.color"
+>
+  <!-- Step navigator -->
+  <div class="steps-nav">
+    @for (step of steps; track step.key; let i = $index; let last = $last) {
       <div
-        class="step-dot"
+        class="step-node"
         [class.active]="i === currentStep()"
-        [class.completed]="i < currentStep()"
-      ></div>
+        [class.done]="i < currentStep()"
+      >
+        <div class="step-node-circle">
+          @if (i < currentStep()) {
+            <span class="check">✓</span>
+          } @else {
+            <span class="step-number">{{ i + 1 }}</span>
+          }
+        </div>
+        <span class="step-node-label">{{ step.label }}</span>
+      </div>
+      @if (!last) {
+        <div class="step-connector" [class.done]="i < currentStep()"></div>
+      }
     }
   </div>
 
-  <div class="step-counter">Schritt {{ currentStep() + 1 }} von {{ steps.length }}</div>
-
+  <!-- Card -->
   <div class="step-card">
     <label [for]="currentSlider.key">
       <span class="label-text">{{ currentSlider.label }}</span>
       <span class="label-desc">{{ currentSlider.description }}</span>
     </label>
-    <div class="slider-row">
-      <span class="slider-min">1</span>
-      <input
-        type="range"
-        [id]="currentSlider.key"
-        [formControlName]="currentSlider.key"
-        min="1"
-        max="5"
-        step="1"
-      />
-      <span class="slider-max">5</span>
-      <span class="slider-value">{{ getControl(currentSlider.key).value }}</span>
+
+    <!-- Desktop: Slider input -->
+    <div class="rating-slider-container desktop-only">
+      <div class="slider-wrapper">
+        <input
+          type="range"
+          [id]="currentSlider.key"
+          class="rating-slider"
+          min="1"
+          max="5"
+          step="1"
+          [formControlName]="currentSlider.key"
+        />
+        <div class="slider-track-fill" [style.width.%]="(getControl(currentSlider.key).value - 1) * 25"></div>
+      </div>
+      <div class="slider-value-display">
+        <span class="value-emoji">{{ currentSlider.valueEmojis[getControl(currentSlider.key).value - 1] }}</span>
+        <span class="value-number">{{ getControl(currentSlider.key).value }}</span>
+      </div>
+      <div class="rating-labels">
+        <span>{{ currentSlider.rangeLabels[0] }}</span>
+        <span>{{ currentSlider.rangeLabels[1] }}</span>
+      </div>
+    </div>
+
+    <!-- Mobile: Button-based selection -->
+    <div class="rating-buttons-container mobile-only">
+      <div class="rating-row">
+        @for (val of ratingValues; track val) {
+          <button
+            type="button"
+            class="rating-btn"
+            [class.selected]="getControl(currentSlider.key).value === val"
+            (click)="getControl(currentSlider.key).setValue(val)"
+            [attr.aria-label]="'Rating ' + val"
+          >
+            <span class="val-emoji">{{ currentSlider.valueEmojis[val - 1] }}</span>
+            <span class="val-num">{{ val }}</span>
+          </button>
+        }
+      </div>
+      <div class="rating-labels">
+        <span>{{ currentSlider.rangeLabels[0] }}</span>
+        <span>{{ currentSlider.rangeLabels[1] }}</span>
+      </div>
     </div>
   </div>
 
+  <!-- Navigation -->
   <div class="step-buttons">
     @if (currentStep() > 0) {
-      <button type="button" class="back-btn" (click)="back()">Zurück</button>
+      <button type="button" class="back-btn" (click)="back()" aria-label="Zurück zum vorherigen Schritt">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Zurück
+      </button>
     }
     @if (!isLastStep) {
-      <button type="button" class="next-btn" (click)="next()">Weiter</button>
+      <button type="button" class="next-btn" (click)="next()" aria-label="Weiter zum nächsten Schritt">
+        Weiter
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     } @else {
-      <button type="submit" class="submit-btn" [disabled]="form.invalid">
-        Analyse starten
+      <button type="submit" class="submit-btn" [disabled]="form.invalid" aria-label="Ergebnis anzeigen">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 11L12 14L22 4M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Ergebnis anzeigen
       </button>
     }
   </div>

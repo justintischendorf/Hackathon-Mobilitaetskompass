@@ -2,6 +2,16 @@ import { Component, output, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MobilityInput } from '../../../../models/mobility.model';
 
+interface Step {
+  key: keyof MobilityInput;
+  label: string;
+  description: string;
+  progressEmoji: string;
+  valueEmojis: [string, string, string, string, string];
+  rangeLabels: [string, string];
+  color: string;
+}
+
 @Component({
   selector: 'app-analyse-form',
   standalone: true,
@@ -23,18 +33,67 @@ export class AnalyseFormComponent {
     flexibility: [3, [Validators.required, Validators.min(1), Validators.max(5)]],
   });
 
-  readonly steps: { key: keyof MobilityInput; label: string; description: string }[] = [
-    { key: 'budget', label: 'Budget', description: 'Wie wichtig ist dir ein niedriger Preis?' },
-    { key: 'comfort', label: 'Komfort', description: 'Wie wichtig ist dir Bequemlichkeit?' },
-    { key: 'eco', label: 'Nachhaltigkeit', description: 'Wie wichtig ist dir Umweltfreundlichkeit?' },
-    { key: 'distance', label: 'Distanz', description: 'Wie weit ist dein typischer Weg?' },
-    { key: 'availability', label: 'Anbindung', description: 'Wie gut ist deine ÖPNV-Anbindung?' },
-    { key: 'flexibility', label: 'Flexibilität', description: 'Wie wichtig ist dir zeitliche Flexibilität?' },
+  readonly steps: Step[] = [
+    {
+      key: 'budget',
+      label: 'Budget',
+      description: 'Wie wichtig ist dir ein niedriger Preis?',
+      progressEmoji: '💰',
+      valueEmojis: ['🤷', '💳', '💰', '💸', '🤑'],
+      rangeLabels: ['Egal', 'Entscheidend'],
+      color: '#f59e0b',
+    },
+    {
+      key: 'comfort',
+      label: 'Komfort',
+      description: 'Wie wichtig ist dir Bequemlichkeit?',
+      progressEmoji: '🛋️',
+      valueEmojis: ['🪨', '🪑', '😊', '🌟', '👑'],
+      rangeLabels: ['Egal', 'Sehr wichtig'],
+      color: '#ec4899',
+    },
+    {
+      key: 'eco',
+      label: 'Nachhaltigkeit',
+      description: 'Wie wichtig ist dir Umweltfreundlichkeit?',
+      progressEmoji: '🌿',
+      valueEmojis: ['🏭', '🌫️', '🌱', '🌿', '🌳'],
+      rangeLabels: ['Egal', 'Sehr wichtig'],
+      color: '#10b981',
+    },
+    {
+      key: 'distance',
+      label: 'Distanz',
+      description: 'Wie weit ist dein typischer Weg?',
+      progressEmoji: '📍',
+      valueEmojis: ['🏠', '🚶', '🚲', '🚗', '✈️'],
+      rangeLabels: ['Sehr kurz', 'Sehr weit'],
+      color: '#0080C8',
+    },
+    {
+      key: 'availability',
+      label: 'Anbindung',
+      description: 'Wie gut ist deine ÖPNV-Anbindung?',
+      progressEmoji: '🚌',
+      valueEmojis: ['🏜️', '🛤️', '🚏', '🚌', '🚆'],
+      rangeLabels: ['Sehr schlecht', 'Sehr gut'],
+      color: '#8b5cf6',
+    },
+    {
+      key: 'flexibility',
+      label: 'Flexibilität',
+      description: 'Wie wichtig ist dir zeitliche Flexibilität?',
+      progressEmoji: '⏰',
+      valueEmojis: ['📅', '🕐', '⚡', '🗓️', '🦋'],
+      rangeLabels: ['Egal', 'Sehr wichtig'],
+      color: '#f97316',
+    },
   ];
 
+  readonly ratingValues = [1, 2, 3, 4, 5];
   readonly currentStep = signal(0);
 
-  get currentSlider() {
+  get currentSlider(): Step {
     return this.steps[this.currentStep()]!;
   }
 

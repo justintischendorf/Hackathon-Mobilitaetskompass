@@ -1,15 +1,37 @@
 <section class="analyse-page">
-  <h1>Mobilitätskompass</h1>
-  <p class="subtitle">Finde heraus, welches Verkehrsmittel am besten zu dir passt.</p>
 
-  <app-analyse-form (submitted)="onFormSubmitted($event)" />
+  <button 
+    class="dark-toggle" 
+    (click)="toggleDarkMode()" 
+    [title]="darkMode() ? 'Hellmodus' : 'Dunkelmodus'"
+    [attr.aria-label]="darkMode() ? 'Zu Hellmodus wechseln' : 'Zu Dunkelmodus wechseln'"
+  >
+    {{ darkMode() ? '☀️' : '🌙' }}
+  </button>
+
+  <div class="page-header">
+    <div class="huk-logo">
+      <img src="/assets/huk-coburg-logo.svg" alt="HUK-COBURG Logo" class="huk-logo-img" />
+      <span class="huk-badge">Hackathon 2026</span>
+    </div>
+    <span class="page-icon" role="img" aria-label="Kompass">🧭</span>
+    <h1>Mobilitätskompass</h1>
+    <p class="subtitle">Finde heraus, welches Verkehrsmittel am besten zu dir passt.</p>
+  </div>
+
+  @if (!result()) {
+    <app-analyse-form (submitted)="onFormSubmitted($event)" />
+  }
 
   @if (loading()) {
-    <div class="loading">Analyse läuft…</div>
+    <div class="loading" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <span>Analyse läuft…</span>
+    </div>
   }
 
   @if (error(); as err) {
-    <div class="error">{{ err }}</div>
+    <div class="error" role="alert">⚠️ {{ err }}</div>
   }
 
   @if (result(); as res) {

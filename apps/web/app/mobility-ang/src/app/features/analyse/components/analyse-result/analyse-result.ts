@@ -9,4 +9,14 @@ import { MobilityResult } from '../../../../models/mobility.model';
 })
 export class AnalyseResultComponent {
   readonly result = input.required<MobilityResult>();
+
+  get empfehlungEmoji(): string {
+    const map: Record<string, string> = {
+      'Auto':     '🚗',
+      'Jobrad':   '🚲',
+      'ÖPNV':     '🚌',
+      'E-Scooter': '🛴',
+    };
+    return map[this.result().empfehlung] ?? '🚀';
+  }
 }
