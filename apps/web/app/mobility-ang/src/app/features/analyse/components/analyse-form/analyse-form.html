@@ -1,0 +1,46 @@
+<form class="analyse-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="step-progress">
+    @for (step of steps; track step.key; let i = $index) {
+      <div
+        class="step-dot"
+        [class.active]="i === currentStep()"
+        [class.completed]="i < currentStep()"
+      ></div>
+    }
+  </div>
+
+  <div class="step-counter">Schritt {{ currentStep() + 1 }} von {{ steps.length }}</div>
+
+  <div class="step-card">
+    <label [for]="currentSlider.key">
+      <span class="label-text">{{ currentSlider.label }}</span>
+      <span class="label-desc">{{ currentSlider.description }}</span>
+    </label>
+    <div class="slider-row">
+      <span class="slider-min">1</span>
+      <input
+        type="range"
+        [id]="currentSlider.key"
+        [formControlName]="currentSlider.key"
+        min="1"
+        max="5"
+        step="1"
+      />
+      <span class="slider-max">5</span>
+      <span class="slider-value">{{ getControl(currentSlider.key).value }}</span>
+    </div>
+  </div>
+
+  <div class="step-buttons">
+    @if (currentStep() > 0) {
+      <button type="button" class="back-btn" (click)="back()">Zurück</button>
+    }
+    @if (!isLastStep) {
+      <button type="button" class="next-btn" (click)="next()">Weiter</button>
+    } @else {
+      <button type="submit" class="submit-btn" [disabled]="form.invalid">
+        Analyse starten
+      </button>
+    }
+  </div>
+</form>

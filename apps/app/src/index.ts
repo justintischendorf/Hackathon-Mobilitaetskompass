@@ -29,6 +29,7 @@ const app = new Elysia({ prefix: "/api" })
           set.status = 400;
           return { error: "All values must be between 1 and 5." };
         }
+        console.log("Received input:", body);
         set.status = 200;
         return await ValidateService.validateData({ body });
       } catch (e) {

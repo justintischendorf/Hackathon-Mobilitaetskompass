@@ -1,0 +1,18 @@
+<section class="analyse-page">
+  <h1>Mobilitätskompass</h1>
+  <p class="subtitle">Finde heraus, welches Verkehrsmittel am besten zu dir passt.</p>
+
+  <app-analyse-form (submitted)="onFormSubmitted($event)" />
+
+  @if (loading()) {
+    <div class="loading">Analyse läuft…</div>
+  }
+
+  @if (error(); as err) {
+    <div class="error">{{ err }}</div>
+  }
+
+  @if (result(); as res) {
+    <app-analyse-result [result]="res" />
+  }
+</section>
