@@ -19,12 +19,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/oepnv/oepnv').then(m => m.OepnvComponent),
   },
   {
-    path: 'jobrad',
-    loadComponent: () => import('./features/jobrad/jobrad').then(m => m.JobradComponent),
+    path: 'fahrrad',
+    loadComponent: () => import('./features/fahrrad/fahrrad').then(m => m.FahrradComponent),
   },
   {
     path: 'e-scooter',
     loadComponent: () => import('./features/e-scooter/e-scooter').then(m => m.EScooterComponent),
+  },
+  {
+    path: 'carsharing',
+    loadComponent: () => import('./features/carsharing/carsharing').then(m => m.CarsharingComponent),
+  },
+  {
+    path: 'uber',
+    loadComponent: () => import('./features/uber/uber').then(m => m.UberComponent),
   },
   { path: '**', redirectTo: 'home' },
 ];

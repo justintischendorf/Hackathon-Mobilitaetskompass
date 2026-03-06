@@ -7,24 +7,27 @@ export abstract class ValidateService {
     body: (typeof MobilityModel.InputUserBody)["static"];
   }) {
     // Frontend-Skala (1-5):
-    // budget:       1 = Preis egal,          5 = Sehr preisbewusst
-    // comfort:      1 = Spartanisch,         5 = Maximaler Komfort
-    // eco:          1 = Nebensächlich,        5 = Höchste Priorität
-    // distance:     1 = Sehr kurz (<2km),    5 = Sehr weit (>30km)
-    // availability: 1 = Keine ÖPNV-Anbindung, 5 = Hervorragend
-    // flexibility:  1 = Feste Zeiten ok,     5 = Volle Flexibilität
+    // budget:       1 = Geringe Priorität,       5 = Hohe Kostenpriorisierung
+    // comfort:      1 = Spartanisch,              5 = Maximaler Komfort
+    // eco:          1 = Nebensächlich,             5 = Höchste Priorität
+    // distance:     1 = Sehr kurz (<2km),         5 = Sehr weit (>150km)
+    // availability: 1 = Keine ÖPNV-Anbindung,     5 = Hervorragend
+    // flexibility:  1 = Planbare Abfahrtszeiten,  5 = Maximale zeitliche Unabhängigkeit
+    // fuehrerschein: true/false
 
     const scores: { name: string; score: number; explanation: string }[] = [];
 
     // Auto: teuer, komfortabel, nicht öko, ideal für weite Strecken,
     //       wichtig bei schlechter ÖPNV-Anbindung, flexibel
-    const carScore =
-      (6 - body.budget) * 2 +
-      body.comfort * 2.5 -
-      body.eco * 2 +
-      body.distance * 2 +
-      (6 - body.availability) * 1.5 +
-      body.flexibility * 1;
+    //       Führerschein erforderlich
+    const carScore = body.fuehrerschein
+      ? (6 - body.budget) * 2.5 +
+        body.comfort * 3 -
+        body.eco * 2.5 +
+        body.distance * 2.5 +
+        (6 - body.availability) * 2 +
+        body.flexibility * 1.5
+      : -100;
 
     scores.push({
       name: "Auto",
@@ -34,13 +37,15 @@ export abstract class ValidateService {
 
     // ÖPNV: günstig, moderat komfortabel, öko, braucht gute Anbindung,
     //        nicht flexibel (Fahrplan-gebunden)
+    //        Anbindung ist entscheidend – ohne gute Anbindung kaum sinnvoll
     const ptvScore =
-      body.budget * 1.5 +
+      body.budget * 2 +
       body.comfort * 0.5 +
       body.eco * 2 +
-      body.distance * 0.5 +
-      body.availability * 3 -
-      body.flexibility * 1.5;
+      (body.availability >= 3 ? body.availability * 3.5 : body.availability * 1) +
+      body.distance * 1 -
+      body.flexibility * 1.5 +
+      (body.availability <= 2 ? -5 : 0);
 
     scores.push({
       name: "ÖPNV",
@@ -48,35 +53,73 @@ export abstract class ValidateService {
       explanation: this.oepnvExplanation(body),
     });
 
-    // Jobrad: sehr günstig, wenig Komfort (körperliche Anstrengung),
-    //         am nachhaltigsten, nur kurze Strecken, sehr flexibel
+    // Fahrrad: sehr günstig, wenig Komfort (körperliche Anstrengung),
+    //          am nachhaltigsten, nur kurze Strecken, sehr flexibel
+    //          Bei weiten Strecken (>=4) stark abgestraft
     const bikeScore =
       body.budget * 2.5 -
       body.comfort * 1.5 +
-      body.eco * 2.5 -
-      body.distance * 3 +
+      body.eco * 3 -
+      (body.distance >= 4 ? body.distance * 4 : body.distance * 2) +
       body.flexibility * 1.5;
 
     scores.push({
-      name: "Jobrad",
+      name: "Fahrrad",
       score: bikeScore,
-      explanation: this.jobradExplanation(body),
+      explanation: this.fahrradExplanation(body),
     });
 
     // E-Scooter: moderate Kosten, wenig Komfort, relativ öko,
     //            nur kurze Strecken, sehr flexibel, urban
+    //            Braucht urbane Infrastruktur (availability als Proxy)
     const eScooterScore =
-      body.budget * 1 -
+      body.budget * 1.5 -
       body.comfort * 0.5 +
       body.eco * 1.5 -
-      body.distance * 3 +
+      (body.distance >= 3 ? body.distance * 3.5 : body.distance * 1.5) +
       body.flexibility * 2 +
-      body.availability * 0.5;
+      body.availability * 1;
 
     scores.push({
       name: "E-Scooter",
       score: eScooterScore,
       explanation: this.escooterExplanation(body),
+    });
+
+    // Car sharing: günstiger als eigenes Auto, Komfort eines Autos,
+    //              moderat öko, mittlere Strecken, Führerschein erforderlich
+    //              Besonders sinnvoll bei gelegentlichem Bedarf (hohe Flexibilität gewünscht aber Budget-bewusst)
+    const carsharingScore = body.fuehrerschein
+      ? body.budget * 2 +
+        body.comfort * 1.5 -
+        body.eco * 0.5 +
+        body.distance * 1.5 +
+        (6 - body.availability) * 1.5 +
+        body.flexibility * 1
+      : -100;
+
+    scores.push({
+      name: "Car sharing",
+      score: carsharingScore,
+      explanation: this.carsharingExplanation(body),
+    });
+
+    // Uber: teuer, sehr komfortabel, kein Führerschein nötig,
+    //        eher kurze bis mittlere Strecken, sehr flexibel
+    //        Bonus wenn kein Führerschein vorhanden
+    const uberScore =
+      (6 - body.budget) * 1.5 +
+      body.comfort * 2.5 -
+      body.eco * 1.5 +
+      (body.distance <= 3 ? body.distance * 0.5 : -body.distance * 1) +
+      body.flexibility * 2 +
+      body.availability * 0.5 +
+      (!body.fuehrerschein ? 4 : 0);
+
+    scores.push({
+      name: "Uber",
+      score: uberScore,
+      explanation: this.uberExplanation(body),
     });
 
     scores.sort((a, b) => b.score - a.score);
@@ -91,6 +134,9 @@ export abstract class ValidateService {
   private static carExplanation(
     b: (typeof MobilityModel.InputUserBody)["static"]
   ): string {
+    if (!b.fuehrerschein) {
+      return "Das Auto wäre eine Option, erfordert aber einen Führerschein.";
+    }
     const reasons: string[] = [];
     if (b.comfort >= 4) reasons.push("Ihr hoher Komfortanspruch");
     if (b.distance >= 4) reasons.push("die weite Strecke");
@@ -116,7 +162,7 @@ export abstract class ValidateService {
     return "Der öffentliche Nahverkehr bietet Ihnen den besten Kompromiss aus Kosten, Nachhaltigkeit und Komfort.";
   }
 
-  private static jobradExplanation(
+  private static fahrradExplanation(
     b: (typeof MobilityModel.InputUserBody)["static"]
   ): string {
     const reasons: string[] = [];
@@ -125,9 +171,9 @@ export abstract class ValidateService {
     if (b.eco >= 4) reasons.push("Ihr starkes Umweltbewusstsein");
     if (b.flexibility >= 4) reasons.push("Ihr Bedürfnis nach voller Flexibilität");
     if (reasons.length > 0) {
-      return `Das Jobrad passt perfekt zu Ihnen – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} eindeutig dafür. Extrem günstig, maximal nachhaltig und gut für die Gesundheit.`;
+      return `Das Fahrrad passt perfekt zu Ihnen – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} eindeutig dafür. Extrem günstig, maximal nachhaltig und gut für die Gesundheit.`;
     }
-    return "Das Jobrad bietet Ihnen die beste Kombination aus Kostenersparnis, Nachhaltigkeit und Flexibilität auf kurzen Strecken.";
+    return "Das Fahrrad bietet Ihnen die beste Kombination aus Kostenersparnis, Nachhaltigkeit und Flexibilität auf kurzen Strecken.";
   }
 
   private static escooterExplanation(
@@ -142,5 +188,36 @@ export abstract class ValidateService {
       return `Der E-Scooter ist ideal für Sie – ${reasons.join(", ")} ${reasons.length === 1 ? "passt" : "passen"} hervorragend dazu. Schnell, flexibel und modern im Stadtverkehr.`;
     }
     return "Der E-Scooter bietet Ihnen eine schnelle, flexible und umweltfreundliche Lösung für kurze urbane Wege.";
+  }
+
+  private static carsharingExplanation(
+    b: (typeof MobilityModel.InputUserBody)["static"]
+  ): string {
+    if (!b.fuehrerschein) {
+      return "Car sharing erfordert einen Führerschein und kommt daher für Sie nicht in Frage.";
+    }
+    const reasons: string[] = [];
+    if (b.budget >= 3) reasons.push("Ihre Kostenbewusstheit");
+    if (b.comfort >= 3) reasons.push("Ihr Komfortbedarf");
+    if (b.distance >= 3) reasons.push("die mittlere bis weite Strecke");
+    if (b.availability <= 3) reasons.push("die eingeschränkte ÖPNV-Anbindung");
+    if (reasons.length > 0) {
+      return `Car sharing ist ideal für Sie – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} dafür. Die Flexibilität eines Autos ohne die Kosten eines eigenen Fahrzeugs.`;
+    }
+    return "Car sharing bietet Ihnen die Vorteile eines Autos ohne die laufenden Kosten eines eigenen Fahrzeugs.";
+  }
+
+  private static uberExplanation(
+    b: (typeof MobilityModel.InputUserBody)["static"]
+  ): string {
+    const reasons: string[] = [];
+    if (b.comfort >= 4) reasons.push("Ihr hoher Komfortanspruch");
+    if (b.flexibility >= 4) reasons.push("Ihr Wunsch nach Flexibilität");
+    if (!b.fuehrerschein) reasons.push("da kein Führerschein benötigt wird");
+    if (b.distance <= 3) reasons.push("die überschaubare Strecke");
+    if (reasons.length > 0) {
+      return `Uber ist die perfekte Lösung für Sie – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} dafür. Bequemer Tür-zu-Tür-Transport per App.`;
+    }
+    return "Uber bietet Ihnen komfortablen Tür-zu-Tür-Transport ohne eigenes Fahrzeug – flexibel und per App buchbar.";
   }
 }

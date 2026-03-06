@@ -28,7 +28,8 @@ const app = new Elysia({ prefix: "/api" })
           body.availability < 1 ||
           body.availability > 5 ||
           body.flexibility < 1 ||
-          body.flexibility > 5
+          body.flexibility > 5 ||
+          typeof body.fuehrerschein !== "boolean"
         ) {
           set.status = 400;
           return { error: "All values must be between 1 and 5." };

@@ -106,7 +106,7 @@ export class CompassComponent implements OnInit, OnDestroy {
       // Only react when mouse is within 100px of compass center
       const radius = Math.max(rect.width, 150);
       if (distance > radius) return;
-      const angle = Math.atan2(dx, -dy) * (180 / Math.PI);
+      const angle = Math.atan2(-dx, dy) * (180 / Math.PI);
       const heading = ((angle % 360) + 360) % 360;
       this.ngZone.run(() => this.heading.set(Math.round(heading)));
     };
