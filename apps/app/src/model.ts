@@ -8,5 +8,6 @@ export namespace MobilityModel {
     distance: t.Number(),
     availability: t.Number(),
     flexibility: t.Number(),
+    fuehrerschein: t.Boolean(),
   });
 }

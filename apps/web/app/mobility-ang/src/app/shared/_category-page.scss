@@ -131,8 +131,14 @@
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--huk-accent);
-    margin-bottom: 24px;
+    margin-bottom: 8px;
   }
+}
+
+.ideal-box-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
 }
 
 .criteria-grid {

@@ -1,6 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MobilityResult, CATEGORIES } from '../../../../models/mobility.model';
+import { MobilityResult, CATEGORIES, CATEGORY_LINKS, MobilityCategory, MobilityLinks } from '../../../../models/mobility.model';
 
 @Component({
   selector: 'app-analyse-result',
@@ -12,6 +12,11 @@ import { MobilityResult, CATEGORIES } from '../../../../models/mobility.model';
 export class AnalyseResultComponent {
   readonly result = input.required<MobilityResult>();
   readonly reset = output<void>();
+
+  readonly links = computed<MobilityLinks | null>(() => {
+    const category = this.result().empfehlung as MobilityCategory;
+    return CATEGORY_LINKS[category] ?? null;
+  });
 
   get categoryRoute(): string {
     const cat = CATEGORIES.find(c => c.name === this.result().empfehlung);

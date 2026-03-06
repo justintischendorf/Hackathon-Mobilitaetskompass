@@ -14,8 +14,10 @@ export class NavbarComponent {
   readonly navLinks = [
     { path: '/auto', label: 'Auto' },
     { path: '/oepnv', label: 'ÖPNV' },
-    { path: '/jobrad', label: 'Jobrad' },
+    { path: '/fahrrad', label: 'Fahrrad' },
     { path: '/e-scooter', label: 'E-Scooter' },
+    { path: '/carsharing', label: 'Car sharing' },
+    { path: '/uber', label: 'Uber' },
   ];
 
   toggleMobileMenu(): void {

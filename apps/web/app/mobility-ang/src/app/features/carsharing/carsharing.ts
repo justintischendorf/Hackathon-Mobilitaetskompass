@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-jobrad',
+  selector: 'app-carsharing',
   standalone: true,
   imports: [RouterLink],
-  templateUrl: './jobrad.html',
-  styleUrl: './jobrad.scss',
+  templateUrl: './carsharing.html',
+  styleUrl: './carsharing.scss',
 })
-export class JobradComponent {}
+export class CarsharingComponent {}

@@ -21,12 +21,12 @@ export async function getRedisClient(): Promise<RedisClientType | null> {
   }
 }
 
-function buildCacheKey(body: Record<string, number>): string {
-  return `mobility:${body.budget}:${body.comfort}:${body.eco}:${body.distance}:${body.availability}:${body.flexibility}`;
+function buildCacheKey(body: Record<string, number | boolean>): string {
+  return `mobility:${body.budget}:${body.comfort}:${body.eco}:${body.distance}:${body.availability}:${body.flexibility}:${body.fuehrerschein}`;
 }
 
 export async function getCachedResult(
-  body: Record<string, number>
+  body: Record<string, number | boolean>
 ): Promise<{ empfehlung: string; erklaerung: string } | null> {
   const redis = await getRedisClient();
   if (!redis) return null;
@@ -45,7 +45,7 @@ export async function getCachedResult(
 }
 
 export async function setCachedResult(
-  body: Record<string, number>,
+  body: Record<string, number | boolean>,
   result: { empfehlung: string; erklaerung: string }
 ): Promise<void> {
   const redis = await getRedisClient();
