@@ -12,8 +12,6 @@ export class NavbarComponent {
   readonly mobileMenuOpen = signal(false);
 
   readonly navLinks = [
-    { path: '/home', label: 'Startseite' },
-    { path: '/analyse', label: 'Analyse' },
     { path: '/auto', label: 'Auto' },
     { path: '/oepnv', label: 'ÖPNV' },
     { path: '/jobrad', label: 'Jobrad' },

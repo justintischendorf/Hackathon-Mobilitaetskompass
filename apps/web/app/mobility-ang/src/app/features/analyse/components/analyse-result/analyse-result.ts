@@ -13,16 +13,6 @@ export class AnalyseResultComponent {
   readonly result = input.required<MobilityResult>();
   readonly reset = output<void>();
 
-  get icon(): string {
-    const map: Record<string, string> = {
-      'Auto': '🚗',
-      'Jobrad': '🚲',
-      'ÖPNV': '🚌',
-      'E-Scooter': '🛴',
-    };
-    return map[this.result().empfehlung] ?? '🚀';
-  }
-
   get categoryRoute(): string {
     const cat = CATEGORIES.find(c => c.name === this.result().empfehlung);
     return cat?.route ?? '/home';

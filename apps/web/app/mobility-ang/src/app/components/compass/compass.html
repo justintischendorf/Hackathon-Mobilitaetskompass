@@ -1,0 +1,80 @@
+<div class="compass-wrapper">
+  <div class="compass-body">
+    <!-- Outer ring with degree markings -->
+    <svg
+      class="compass-svg"
+      viewBox="0 0 300 300"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <linearGradient id="needleNorth" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#feed00" />
+          <stop offset="100%" stop-color="#e6d700" />
+        </linearGradient>
+        <linearGradient id="needleSouth" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.25)" />
+          <stop offset="100%" stop-color="rgba(255,255,255,0.1)" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="needleShadow">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.4)" />
+        </filter>
+      </defs>
+
+      <!-- Outer ring -->
+      <circle cx="150" cy="150" r="145" fill="none" stroke="rgba(254,237,0,0.15)" stroke-width="1" />
+      <circle cx="150" cy="150" r="140" fill="none" stroke="rgba(254,237,0,0.08)" stroke-width="0.5" />
+
+      <!-- Rotating dial with markings -->
+      <g [attr.transform]="dialRotation" class="compass-dial">
+        <!-- Degree tick marks -->
+        @for (tick of [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350]; track tick) {
+          <line
+            [attr.x1]="150"
+            [attr.y1]="18"
+            [attr.x2]="150"
+            [attr.y2]="tick % 30 === 0 ? 38 : 28"
+            [attr.stroke]="tick % 90 === 0 ? '#feed00' : 'rgba(255,255,255,0.25)'"
+            [attr.stroke-width]="tick % 30 === 0 ? 2 : 1"
+            [attr.transform]="'rotate(' + tick + ' 150 150)'"
+          />
+        }
+
+        <!-- Cardinal direction labels -->
+        <text x="150" y="52" text-anchor="middle" class="cardinal cardinal-n" fill="#feed00" font-size="16" font-weight="800">N</text>
+        <text x="252" y="155" text-anchor="middle" class="cardinal" fill="rgba(255,255,255,0.5)" font-size="13" font-weight="600">O</text>
+        <text x="150" y="260" text-anchor="middle" class="cardinal" fill="rgba(255,255,255,0.5)" font-size="13" font-weight="600">S</text>
+        <text x="48" y="155" text-anchor="middle" class="cardinal" fill="rgba(255,255,255,0.5)" font-size="13" font-weight="600">W</text>
+
+        <!-- Inner circle guides -->
+        <circle cx="150" cy="150" r="100" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" />
+        <circle cx="150" cy="150" r="60" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
+      </g>
+
+      <!-- Fixed needle (points up = current heading direction) -->
+      <g filter="url(#needleShadow)">
+        <!-- North half of needle (yellow) -->
+        <polygon
+          points="150,35 143,150 157,150"
+          fill="url(#needleNorth)"
+          filter="url(#glow)"
+        />
+        <!-- South half of needle -->
+        <polygon
+          points="150,265 143,150 157,150"
+          fill="url(#needleSouth)"
+        />
+      </g>
+
+      <!-- Center cap -->
+      <circle cx="150" cy="150" r="10" fill="#011631" stroke="#feed00" stroke-width="2" />
+      <circle cx="150" cy="150" r="4" fill="#feed00" />
+    </svg>
+  </div>
+</div>

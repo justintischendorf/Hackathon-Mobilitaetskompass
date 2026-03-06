@@ -1,0 +1,37 @@
+@startuml
+skinparam backgroundColor white
+skinparam roundcorner 8
+skinparam componentBackgroundColor #FEED00
+skinparam componentBorderColor #011631
+skinparam componentFontColor #011631
+skinparam packageBackgroundColor #F7F8FA
+skinparam packageBorderColor #011631
+skinparam databaseBackgroundColor #E2E8F0
+skinparam databaseBorderColor #011631
+skinparam arrowColor #011631
+
+title Mobilitätskompass – Architektur
+
+actor "Benutzer" as user
+
+package "Frontend :4200" {
+  [Angular App] as frontend
+}
+
+package "Backend :3000" {
+  [Elysia API] as api
+  [Scoring Engine] as scoring
+}
+
+database "Redis :6379" as redis
+
+user --> frontend : Bewertungen
+frontend --> api : POST /api/analyse
+api --> redis : Cache prüfen
+redis --> api : HIT / MISS
+api --> scoring : Berechnen (bei MISS)
+scoring --> redis : Ergebnis cachen
+api --> frontend : JSON Response
+frontend --> user : Empfehlung
+
+@enduml

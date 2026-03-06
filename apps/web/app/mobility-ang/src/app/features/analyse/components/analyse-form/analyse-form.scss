@@ -51,6 +51,11 @@
     border: 2px solid var(--border-color);
     font-size: 1rem;
     transition: all 0.3s ease;
+
+    svg {
+      width: 1.2rem;
+      height: 1.2rem;
+    }
   }
 
   .dot-label {
@@ -143,7 +148,12 @@
 }
 
 .step-title-icon {
-  font-size: 1.8rem;
+  display: inline-flex;
+
+  svg {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
 }
 
 .step-description {

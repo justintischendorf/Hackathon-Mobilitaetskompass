@@ -1,0 +1,13 @@
+FROM node:22-slim AS base
+WORKDIR /app
+
+COPY apps/web/app/mobility-ang/package.json apps/web/app/mobility-ang/package-lock.json* ./
+RUN npm install
+
+COPY apps/web/app/mobility-ang/ ./
+
+# Override proxy target to point to the api service in Docker network
+RUN echo '{ "/api": { "target": "http://api:3000", "secure": false, "changeOrigin": true } }' > proxy.conf.json
+
+EXPOSE 4200
+CMD ["npx", "ng", "serve", "--host", "0.0.0.0", "--poll", "2000"]

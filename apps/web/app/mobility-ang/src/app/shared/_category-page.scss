@@ -22,10 +22,15 @@
   }
 
   .category-icon {
-    font-size: 4rem;
-    display: block;
+    display: flex;
+    justify-content: center;
     margin-bottom: 16px;
-    animation: iconFloat 4s ease-in-out infinite;
+    color: var(--huk-primary);
+
+    svg {
+      width: 4rem;
+      height: 4rem;
+    }
   }
 
   h1 {
@@ -42,10 +47,7 @@
   }
 }
 
-@keyframes iconFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+
 
 .content-grid {
   display: grid;

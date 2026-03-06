@@ -8,7 +8,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "rest": "bun run apps/app/src/index.ts",
-    "website": "cd apps/web/app/mobility-ang && ng serve"
+    "website": "cd apps/web/app/mobility-ang && ng serve",
+    "docker": "docker compose -f docker-compose-dev.yml up --build"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
