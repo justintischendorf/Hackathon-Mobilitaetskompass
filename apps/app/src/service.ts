@@ -18,15 +18,15 @@ export abstract class ValidateService {
     const scores: { name: string; score: number; explanation: string }[] = [];
 
     // Auto: teuer, komfortabel, nicht öko, ideal für weite Strecken,
-    //       wichtig bei schlechter ÖPNV-Anbindung, flexibel
+    //       aber dominiert unrealistisch - reduziert wenn ÖPNV verfügbar
     //       Führerschein erforderlich
     const carScore = body.fuehrerschein
-      ? (6 - body.budget) * 2.5 +
-        body.comfort * 3 -
+      ? (6 - body.budget) * 1.8 +
+        body.comfort * 2.3 -
         body.eco * 2.5 +
-        body.distance * 2.5 +
-        (6 - body.availability) * 2 +
-        body.flexibility * 1.5
+        body.distance * 2.2 +
+        (6 - body.availability) * 1.2 +
+        body.flexibility * 1.2
       : -100;
 
     scores.push({
@@ -35,17 +35,17 @@ export abstract class ValidateService {
       explanation: this.carExplanation(body),
     });
 
-    // ÖPNV: günstig, moderat komfortabel, öko, braucht gute Anbindung,
-    //        nicht flexibel (Fahrplan-gebunden)
-    //        Anbindung ist entscheidend – ohne gute Anbindung kaum sinnvoll
+    // ÖPNV: günstig, moderat komfortabel, öko, braucht SEHR gute Anbindung
+    //        ist oft besser als Auto wenn Anbindung stimmt
+    //        Fahrplan-gebunden: weniger Flexibilität
     const ptvScore =
-      body.budget * 2 +
-      body.comfort * 0.5 +
-      body.eco * 2 +
-      (body.availability >= 3 ? body.availability * 3.5 : body.availability * 1) +
-      body.distance * 1 -
-      body.flexibility * 1.5 +
-      (body.availability <= 2 ? -5 : 0);
+      body.budget * 2.5 +
+      body.comfort * 0.4 +
+      body.eco * 2.5 +
+      (body.availability >= 4 ? body.availability * 4 : body.availability * 0.3) +
+      body.distance * 0.6 -
+      body.flexibility * 1.2 +
+      (body.availability <= 2 ? -20 : 0);
 
     scores.push({
       name: "ÖPNV",
@@ -54,14 +54,14 @@ export abstract class ValidateService {
     });
 
     // Fahrrad: sehr günstig, wenig Komfort (körperliche Anstrengung),
-    //          am nachhaltigsten, nur kurze Strecken, sehr flexibel
-    //          Bei weiten Strecken (>=4) stark abgestraft
+    //          am nachhaltigsten, E-Bikes ermöglichen längere Strecken
+    //          weniger Strafe für distance wegen E-Bike Realität
     const bikeScore =
-      body.budget * 2.5 -
-      body.comfort * 1.5 +
-      body.eco * 3 -
-      (body.distance >= 4 ? body.distance * 4 : body.distance * 2) +
-      body.flexibility * 1.5;
+      body.budget * 3 -
+      body.comfort * 1.2 +
+      body.eco * 3.2 -
+      (body.distance >= 4 ? body.distance * 1.5 : body.distance * 0.8) +
+      body.flexibility * 1.8;
 
     scores.push({
       name: "Fahrrad",
@@ -70,15 +70,15 @@ export abstract class ValidateService {
     });
 
     // E-Scooter: moderate Kosten, wenig Komfort, relativ öko,
-    //            nur kurze Strecken, sehr flexibel, urban
-    //            Braucht urbane Infrastruktur (availability als Proxy)
+    //            NUR URBAN sinnvoll - wird ohne gute Verfügbarkeit bestraft
+    //            Sehr flexibel in der Stadt
     const eScooterScore =
-      body.budget * 1.5 -
-      body.comfort * 0.5 +
-      body.eco * 1.5 -
-      (body.distance >= 3 ? body.distance * 3.5 : body.distance * 1.5) +
-      body.flexibility * 2 +
-      body.availability * 1;
+      body.budget * 1.8 -
+      body.comfort * 0.3 +
+      body.eco * 1.8 -
+      (body.distance >= 3 ? body.distance * 2.5 : body.distance * 0.8) +
+      body.flexibility * 2.2 +
+      (body.availability >= 4 ? body.availability * 2.5 : body.availability * -2);
 
     scores.push({
       name: "E-Scooter",
@@ -86,16 +86,16 @@ export abstract class ValidateService {
       explanation: this.escooterExplanation(body),
     });
 
-    // Car Sharing: günstiger als eigenes Auto, Komfort eines Autos,
+    // Car Sharing: günstiger als eigenes Auto (~0.30€/km + Basis), Komfort eines Autos,
     //              moderat öko, mittlere Strecken, Führerschein erforderlich
-    //              Besonders sinnvoll bei gelegentlichem Bedarf (hohe Flexibilität gewünscht aber Budget-bewusst)
+    //              Guter Kompromiss zwischen Auto und Budget
     const carsharingScore = body.fuehrerschein
-      ? body.budget * 2 +
-        body.comfort * 1.5 -
-        body.eco * 0.5 +
-        body.distance * 1.5 +
-        (6 - body.availability) * 1.5 +
-        body.flexibility * 1
+      ? body.budget * 2.3 +
+        body.comfort * 1.8 -
+        body.eco * 0.4 +
+        body.distance * 1.8 +
+        (6 - body.availability) * 1.3 +
+        body.flexibility * 1.3
       : -100;
 
     scores.push({
@@ -104,17 +104,17 @@ export abstract class ValidateService {
       explanation: this.carsharingExplanation(body),
     });
 
-    // Uber: teuer, sehr komfortabel, kein Führerschein nötig,
-    //        eher kurze bis mittlere Strecken, sehr flexibel
-    //        Bonus wenn kein Führerschein vorhanden
+    // Uber: SEHR teuer (~2-3€/km), sehr komfortabel, kein Führerschein nötig,
+    //        eher kurze Strecken, sehr flexibel
+    //        MASSIV bestraft wenn Budget wichtig ist
     const uberScore =
-      (6 - body.budget) * 1.5 +
-      body.comfort * 2.5 -
-      body.eco * 1.5 +
-      (body.distance <= 3 ? body.distance * 0.5 : -body.distance * 1) +
-      body.flexibility * 2 +
-      body.availability * 0.5 +
-      (!body.fuehrerschein ? 4 : 0);
+      (6 - body.budget) * 2.5 +
+      body.comfort * 2.8 -
+      body.eco * 1.8 +
+      (body.distance <= 2 ? body.distance * 1.2 : (body.distance <= 3 ? body.distance * 0.5 : -body.distance * 1.5)) +
+      body.flexibility * 2.2 +
+      body.availability * 0.3 +
+      (!body.fuehrerschein ? 5 : 0);
 
     scores.push({
       name: "Uber",
