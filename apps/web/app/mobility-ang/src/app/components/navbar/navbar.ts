@@ -16,7 +16,7 @@ export class NavbarComponent {
     { path: '/oepnv', label: 'ÖPNV' },
     { path: '/fahrrad', label: 'Fahrrad' },
     { path: '/e-scooter', label: 'E-Scooter' },
-    { path: '/carsharing', label: 'Car sharing' },
+    { path: '/carsharing', label: 'Car Sharing' },
     { path: '/uber', label: 'Uber' },
   ];
 

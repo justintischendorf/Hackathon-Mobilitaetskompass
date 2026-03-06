@@ -17,7 +17,7 @@ export interface ApiError {
   error: string;
 }
 
-export type MobilityCategory = 'Auto' | 'ÖPNV' | 'Fahrrad' | 'E-Scooter' | 'Car sharing' | 'Uber';
+export type MobilityCategory = 'Auto' | 'ÖPNV' | 'Fahrrad' | 'E-Scooter' | 'Car Sharing' | 'Uber';
 
 export interface CategoryInfo {
   id: string;
@@ -97,11 +97,11 @@ export const CATEGORIES: CategoryInfo[] = [
   },
   {
     id: 'carsharing',
-    name: 'Car sharing',
+    name: 'Car Sharing',
     icon: '🚙',
     tagline: 'Auto nutzen ohne zu besitzen',
     description:
-      'Car sharing bietet die Flexibilität eines Autos ohne die Kosten eines eigenen Fahrzeugs – ideal für gelegentliche Fahrten.',
+      'Car Sharing bietet die Flexibilität eines Autos ohne die Kosten eines eigenen Fahrzeugs – ideal für gelegentliche Fahrten.',
     benefits: [
       'Keine Anschaffungskosten',
       'Flexible Nutzung bei Bedarf',
@@ -191,7 +191,7 @@ export const CATEGORY_LINKS: Record<MobilityCategory, MobilityLinks> = {
       drittanbieter: true,
     },
   },
-  'Car sharing': {
+  'Car Sharing': {
     service: {
       label: 'MILES Mobility',
       url: 'https://www.miles-mobility.com/',

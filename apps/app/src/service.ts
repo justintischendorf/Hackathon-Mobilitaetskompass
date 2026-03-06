@@ -86,7 +86,7 @@ export abstract class ValidateService {
       explanation: this.escooterExplanation(body),
     });
 
-    // Car sharing: günstiger als eigenes Auto, Komfort eines Autos,
+    // Car Sharing: günstiger als eigenes Auto, Komfort eines Autos,
     //              moderat öko, mittlere Strecken, Führerschein erforderlich
     //              Besonders sinnvoll bei gelegentlichem Bedarf (hohe Flexibilität gewünscht aber Budget-bewusst)
     const carsharingScore = body.fuehrerschein
@@ -99,7 +99,7 @@ export abstract class ValidateService {
       : -100;
 
     scores.push({
-      name: "Car sharing",
+      name: "Car Sharing",
       score: carsharingScore,
       explanation: this.carsharingExplanation(body),
     });
@@ -194,7 +194,7 @@ export abstract class ValidateService {
     b: (typeof MobilityModel.InputUserBody)["static"]
   ): string {
     if (!b.fuehrerschein) {
-      return "Car sharing erfordert einen Führerschein und kommt daher für Sie nicht in Frage.";
+      return "Car Sharing erfordert einen Führerschein und kommt daher für Sie nicht in Frage.";
     }
     const reasons: string[] = [];
     if (b.budget >= 3) reasons.push("Ihre Kostenbewusstheit");
@@ -202,9 +202,9 @@ export abstract class ValidateService {
     if (b.distance >= 3) reasons.push("die mittlere bis weite Strecke");
     if (b.availability <= 3) reasons.push("die eingeschränkte ÖPNV-Anbindung");
     if (reasons.length > 0) {
-      return `Car sharing ist ideal für Sie – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} dafür. Die Flexibilität eines Autos ohne die Kosten eines eigenen Fahrzeugs.`;
+      return `Car Sharing ist ideal für Sie – ${reasons.join(", ")} ${reasons.length === 1 ? "spricht" : "sprechen"} dafür. Die Flexibilität eines Autos ohne die Kosten eines eigenen Fahrzeugs.`;
     }
-    return "Car sharing bietet Ihnen die Vorteile eines Autos ohne die laufenden Kosten eines eigenen Fahrzeugs.";
+    return "Car Sharing bietet Ihnen die Vorteile eines Autos ohne die laufenden Kosten eines eigenen Fahrzeugs.";
   }
 
   private static uberExplanation(
