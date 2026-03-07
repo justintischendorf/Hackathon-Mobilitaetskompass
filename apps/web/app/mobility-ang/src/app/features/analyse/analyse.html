@@ -1,0 +1,35 @@
+<section class="analyse-page">
+  <div class="container">
+    <div class="page-header">
+      <h1 class="section-title">Mobilitäts-Analyse</h1>
+      <p class="section-subtitle">
+        Bewerten Sie Ihre Kriterien und erhalten Sie Ihre persönliche Mobilitätsempfehlung.
+      </p>
+    </div>
+
+    @if (!result()) {
+      <app-analyse-form (submitted)="onFormSubmitted($event)" />
+    }
+
+    @if (loading()) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Analyse wird durchgeführt…</p>
+      </div>
+    }
+
+    @if (error(); as err) {
+      <div class="error-state" role="alert">
+        <span class="error-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        </span>
+        <p>{{ err }}</p>
+        <button class="btn-primary" (click)="onReset()">Erneut versuchen</button>
+      </div>
+    }
+
+    @if (result(); as res) {
+      <app-analyse-result [result]="res" (reset)="onReset()" />
+    }
+  </div>
+</section>
