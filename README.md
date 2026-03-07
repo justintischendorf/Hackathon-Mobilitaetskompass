@@ -1,159 +1,300 @@
-# Turborepo starter
+# 🧭 Mobilitätskompass
 
-This Turborepo starter is maintained by the Turborepo core team.
+> **Intelligentes Mobilitäts-Empfehlungssystem** – Entwickelt im Rahmen des HUK-COBURG Hackathon 2026
 
-## Using this example
+Der Mobilitätskompass analysiert die persönlichen Präferenzen eines Nutzers und empfiehlt die optimale Fortbewegungsart für den individuellen Alltag. Über einen interaktiven Fragebogen werden Prioritäten wie Budget, Komfort, Nachhaltigkeit und Flexibilität erfasst – das System liefert daraufhin eine personalisierte Empfehlung mit ausführlicher Begründung.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## 📋 Inhaltsverzeichnis
+
+- [Hintergrund](#-hintergrund)
+- [Funktionsweise](#-funktionsweise)
+- [Architektur](#-architektur)
+- [Tech-Stack](#-tech-stack)
+- [Projektstruktur](#-projektstruktur)
+- [Installation & Entwicklung](#-installation--entwicklung)
+- [Docker](#-docker)
+- [API-Dokumentation](#-api-dokumentation)
+- [Scoring-Algorithmus](#-scoring-algorithmus)
+
+---
+
+## 🎯 Hintergrund
+
+Die steigende Vielfalt an Mobilitätsangeboten – vom klassischen Auto über ÖPNV und Fahrradleasing bis hin zu E-Scootern, Carsharing und Ride-Hailing – stellt viele Menschen vor die Frage: **Welches Verkehrsmittel passt eigentlich am besten zu mir?**
+
+Der Mobilitätskompass beantwortet diese Frage datenbasiert und individuell. Statt pauschaler Empfehlungen berücksichtigt das System sechs persönliche Kriterien sowie die tatsächliche ÖPNV-Anbindung am Wohnort des Nutzers.
+
+---
+
+## ⚙️ Funktionsweise
+
+### Interaktiver Fragebogen (7 Schritte)
+
+Der Nutzer durchläuft einen Schritt-für-Schritt-Wizard mit folgenden Kriterien:
+
+| Schritt | Kriterium | Skala |
+|---------|-----------|-------|
+| 1 | **Budget** – Wie wichtig ist ein niedriger Preis? | 1 (egal) → 5 (sehr preisbewusst) |
+| 2 | **Komfort** – Wie wichtig ist Bequemlichkeit? | 1 (spartanisch) → 5 (maximaler Komfort) |
+| 3 | **Nachhaltigkeit** – Wie wichtig ist Umweltfreundlichkeit? | 1 (nebensächlich) → 5 (höchste Priorität) |
+| 4 | **Distanz** – Wie weit ist der typische Weg? | 1 (sehr kurz) → 5 (sehr weit) |
+| 5 | **ÖPNV-Anbindung** – Wie gut ist die Anbindung? | 1 (keine) → 5 (hervorragend) |
+| 6 | **Flexibilität** – Wie wichtig ist Unabhängigkeit? | 1 (feste Zeiten ok) → 5 (volle Flexibilität) |
+| 7 | **Führerschein** – Ist ein Führerschein vorhanden? | Ja / Nein |
+
+### Smarte Adress-Erkennung
+
+Bei der Eingabe der ÖPNV-Anbindung kann der Nutzer optional seine Adresse eingeben. Das System nutzt dann:
+
+- **Nominatim** (OpenStreetMap) zur Geokodierung der Adresse
+- **Overpass API** zur Ermittlung von Bus-, Bahn- und Tramhaltestellen im Umkreis von 1 km
+- Automatische Bewertung der Anbindung anhand der Haltestellenanzahl (0 = schlecht, 10+ = hervorragend)
+
+### Sechs Mobilitätskategorien
+
+| Kategorie | Beschreibung |
+|-----------|-------------|
+| 🚗 **Auto** | Maximaler Komfort & Unabhängigkeit, ideal für weite Strecken |
+| 🚌 **ÖPNV** | Budgetfreundlich & nachhaltig, setzt gute Anbindung voraus |
+| 🚲 **Fahrrad** | Günstigste & nachhaltigste Option, ideal für kurze Distanzen |
+| 🛴 **E-Scooter** | Moderner urbaner Transport, flexibel in der Stadt |
+| 🚙 **Carsharing** | Autonutzung ohne Besitz, erfordert Führerschein |
+| 📱 **Uber** | Tür-zu-Tür-Komfort ohne eigenes Fahrzeug |
+
+### Personalisiertes Ergebnis
+
+Nach der Analyse erhält der Nutzer:
+- Die **optimale Mobilitätsempfehlung** mit Icon und Titel
+- Eine **individuelle Begründung**, warum genau diese Option passt
+- **Relevante Links** zu Drittanbieter-Services (Versicherungen, Kaufoptionen, Mobilitätsdienste)
+- Die Möglichkeit, eine **neue Analyse** zu starten
+
+---
+
+## 🏗️ Architektur
+
+![Request-Flow Sequenzdiagramm](docs/request-flow-sequence.png)
+
+### Ablauf
+
+```
+Angular Client (Port 4200)
+        │
+        ▼  POST /api/analyse
+Elysia REST API (Bun, Port 3000)
+        │
+        ▼  Cache-Check
+Redis Cache (Port 6379)
+        │
+    ┌───┴───┐
+    HIT    MISS
+    │       │
+    │    Scoring-Engine
+    │    berechnet gewichtete
+    │    Scores für alle 6 Optionen
+    │       │
+    │    Ergebnis in Redis
+    │    speichern (TTL: 24h)
+    │       │
+    └───┬───┘
+        │
+        ▼  JSON Response
+Angular Client
+{ empfehlung, erklaerung }
 ```
 
-## What's inside?
+**Graceful Degradation:** Ist Redis nicht verfügbar, berechnet die API das Ergebnis trotzdem – ohne Caching, aber ohne Fehler für den Nutzer.
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## 🛠️ Tech-Stack
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+| Komponente | Technologie | Version |
+|------------|-------------|---------|
+| **Backend** | Elysia (Bun) | – |
+| **Frontend** | Angular (Standalone Components) | 21.x |
+| **Caching** | Redis | 7 (Alpine) |
+| **Monorepo** | Turborepo | 2.8.x |
+| **Sprache** | TypeScript | 5.9.x |
+| **Paketmanager** | Bun | 1.3.9 |
+| **Containerisierung** | Docker & Docker Compose | – |
+| **Node.js** | ≥ 18 erforderlich | – |
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+---
 
-### Utilities
+## 📁 Projektstruktur
 
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```
+├── apps/
+│   ├── app/                          # Elysia REST API (Bun)
+│   │   └── src/
+│   │       ├── index.ts              # Server & Endpunkt-Definition
+│   │       ├── service.ts            # Scoring-Engine (6 Algorithmen)
+│   │       ├── model.ts              # TypeScript-Typen & Validierung
+│   │       └── cache.ts              # Redis-Client & Cache-Logik
+│   │
+│   └── web/                          # Next.js Wrapper + Angular App
+│       └── app/
+│           └── mobility-ang/         # Angular Frontend
+│               └── src/app/
+│                   ├── components/    # Wiederverwendbare Komponenten
+│                   │   ├── compass/  # Interaktiver SVG-Kompass
+│                   │   ├── navbar/   # Navigation mit Mobile-Menü
+│                   │   └── footer/   # Footer mit Kategorie-Links
+│                   ├── features/     # Seiten-Module
+│                   │   ├── home/     # Startseite mit Kompass
+│                   │   ├── analyse/  # Fragebogen-Wizard & Ergebnisse
+│                   │   ├── auto/     # Kategorie-Detailseiten
+│                   │   ├── oepnv/
+│                   │   ├── fahrrad/
+│                   │   ├── e-scooter/
+│                   │   ├── carsharing/
+│                   │   └── uber/
+│                   ├── models/       # Interfaces & Kategorie-Daten
+│                   └── services/     # HTTP-Client für API-Kommunikation
+│
+├── packages/                         # Geteilte Konfigurationspakete
+│   ├── eslint-config/                # ESLint-Regeln
+│   ├── typescript-config/            # Geteilte tsconfig.json
+│   └── ui/                           # Shared UI-Komponenten
+│
+├── docs/                             # Architektur-Dokumentation
+│   ├── request-flow.md               # Detaillierter Request-Ablauf
+│   ├── request-flow.puml             # PlantUML Sequenzdiagramm
+│   ├── request-flow-sequence.png     # Sequenzdiagramm (gerendert)
+│   ├── request-flow-architecture.png # Architekturdiagramm (gerendert)
+│   └── architecture-flow.puml        # PlantUML Architekturübersicht
+│
+├── docker-compose-dev.yml            # Docker-Konfiguration
+├── Dockerfile.api                    # API-Container (Bun)
+├── Dockerfile.web                    # Web-Container (Node 22)
+├── turbo.json                        # Turborepo-Konfiguration
+└── package.json                      # Root-Konfiguration & Scripts
 ```
 
-Without global `turbo`, use your package manager:
+---
+
+## 🚀 Installation & Entwicklung
+
+### Voraussetzungen
+
+- [Bun](https://bun.sh/) ≥ 1.3.9
+- [Node.js](https://nodejs.org/) ≥ 18
+- [Redis](https://redis.io/) (optional, Fallback ohne Caching)
+- [Angular CLI](https://angular.dev/) (für Frontend-Entwicklung)
+
+### Abhängigkeiten installieren
 
 ```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+bun install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Entwicklungsserver starten
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+**Alle Services gleichzeitig:**
 
 ```sh
-turbo build --filter=docs
+bun run dev
 ```
 
-Without global `turbo`:
+**Nur API (Port 3000):**
 
 ```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+bun run rest
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+**Nur Frontend (Port 4200):**
 
 ```sh
-cd my-turborepo
-turbo dev
+bun run website
 ```
 
-Without global `turbo`, use your package manager:
+> **Hinweis:** Das Angular-Frontend leitet API-Anfragen über einen Proxy an `http://localhost:3000` weiter. Beide Services sollten daher parallel laufen.
+
+---
+
+## 🐳 Docker
+
+Alle Services können containerisiert gestartet werden:
 
 ```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+bun run docker
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Dies startet drei Container via Docker Compose:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+| Service | Port | Image |
+|---------|------|-------|
+| **Redis** | 6379 | `redis:7-alpine` |
+| **API** | 3000 | Bun-basiert (`Dockerfile.api`) |
+| **Web** | 4200 | Node 22 mit Angular CLI (`Dockerfile.web`) |
 
-```sh
-turbo dev --filter=web
+**Umgebungsvariablen:**
+
+| Variable | Standard | Beschreibung |
+|----------|----------|-------------|
+| `REDIS_URL` | `redis://localhost:6379` | Redis-Verbindungs-URL |
+
+---
+
+## 📡 API-Dokumentation
+
+### `POST /api/analyse`
+
+Berechnet die optimale Mobilitätsempfehlung basierend auf den Nutzerpräferenzen.
+
+**Request Body:**
+
+```json
+{
+  "budget": 4,
+  "comfort": 2,
+  "eco": 5,
+  "distance": 1,
+  "availability": 4,
+  "flexibility": 3,
+  "fuehrerschein": true
+}
 ```
 
-Without global `turbo`:
+Alle Bewertungsfelder müssen zwischen **1 und 5** liegen. `fuehrerschein` ist ein Boolean.
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+**Response (200):**
+
+```json
+{
+  "empfehlung": "Fahrrad",
+  "erklaerung": "Basierend auf Ihren Angaben empfehlen wir Ihnen das Fahrrad als optimales Verkehrsmittel. ..."
+}
 ```
 
-### Remote Caching
+**Fehler (400):** Ungültige Eingabewerte.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+**Caching:** Ergebnisse werden in Redis mit einem TTL von 24 Stunden gespeichert. Der Cache-Schlüssel setzt sich aus allen Eingabeparametern zusammen: `mobility:{budget}:{comfort}:{eco}:{distance}:{availability}:{flexibility}:{fuehrerschein}`
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 🧮 Scoring-Algorithmus
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Die Scoring-Engine berechnet für jede der sechs Mobilitätsoptionen einen gewichteten Score. Die Option mit dem höchsten Score wird empfohlen.
 
-```sh
-cd my-turborepo
-turbo login
-```
+| Option | Profitiert von | Wird bestraft durch |
+|--------|----------------|---------------------|
+| **Auto** | Komfort ↑, Distanz ↑, ÖPNV-Anbindung ↓ | Nachhaltigkeit ↑ |
+| **ÖPNV** | Budget ↑, Nachhaltigkeit ↑, Anbindung ↑ | Flexibilität ↑ |
+| **Fahrrad** | Budget ↑, Nachhaltigkeit ↑, Flexibilität ↑ | Komfort ↑, Distanz ↑ |
+| **E-Scooter** | Budget ↑, Flexibilität ↑ | Distanz ↑ |
+| **Carsharing** | Komfort ↑, Flexibilität ↑ | Nachhaltigkeit ↑ |
+| **Uber** | Komfort ↑, Flexibilität ↑, Distanz ↓ | Budget ↑ |
 
-Without global `turbo`, use your package manager:
+Optionen, die einen Führerschein erfordern (Auto, Carsharing), werden automatisch ausgeschlossen, wenn `fuehrerschein = false`.
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+Bei insgesamt **5⁶ × 2 = 31.250 möglichen Kombinationen** sorgt das Redis-Caching für schnelle Antwortzeiten bei wiederholten Anfragen.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## 📄 Lizenz
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Dieses Projekt wurde im Rahmen des HUK-COBURG Hackathon 2026 entwickelt.
